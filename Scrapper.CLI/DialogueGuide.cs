@@ -19,29 +19,32 @@ public static class DialogueGuide
         var numName = Console.ReadLine();
         if (!int.TryParse(numName, out var numLinks)) return;
         var output = links.Shuffle().Stretch(numLinks);
-        foreach (var link in output)
+        foreach (var linkList in output)
         {
-            Console.WriteLine(link);
+            Console.WriteLine();
+            foreach (var link in linkList)
+            {
+                Console.WriteLine(link);
+            }
         }
-        Console.WriteLine($"Спасибо за использование"); 
+        Console.WriteLine($"\nСпасибо за использование"); 
         Console.ReadLine();
     }
 
-    private static async Task<List<string>> GetLinksFromCommentsInDiscussion(string organizationName, string repositoryName, string discussionID)
+    private static async Task<List<List<string>>> GetLinksFromCommentsInDiscussion(string organizationName, string repositoryName, string discussionID)
     {
         var url = @$"https://github.com/{organizationName}/{repositoryName}/discussions/{discussionID}";
         var page = await WebService.GetPage(url);
         const string targetParse = "js-timeline-item js-timeline-progressive-focus-container";
         var dirtySplittedPageByComments = page.Split(targetParse);
-        var urls = new List<string>();
+        var urls = new List<List<string>>();
         for (var i = 1; i < dirtySplittedPageByComments.Length; i++)
         {
             var tagRegex = new Regex("<(?:\"[^\"]*\"['\"]*|'[^']*'['\"]*|[^'\">])+>");
             var newText = tagRegex.Replace(dirtySplittedPageByComments[i], "");
             var next = Regex.Replace(newText, @"\s+", " ");
             var ms2 = Regex.Matches(next, @"(http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])");
-            var testMatch2 = ms2[0].Value.ToString();
-            urls.Add(testMatch2);
+            urls.Add(ms2.Select(x=>x.Value).ToList());
         }
         return urls;
     }
