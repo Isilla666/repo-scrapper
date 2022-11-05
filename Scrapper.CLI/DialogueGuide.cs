@@ -17,8 +17,7 @@ public static class DialogueGuide
         Console.WriteLine($"Всего {links.Count} ссылок"); 
         Console.WriteLine($"Сколько хотите получить ссылок?"); 
         var numName = Console.ReadLine();
-        int numLinks;
-        if (!int.TryParse(numName, out numLinks)) return;
+        if (!int.TryParse(numName, out var numLinks)) return;
         var output = links.Shuffle().Stretch(numLinks);
         foreach (var link in output)
         {
